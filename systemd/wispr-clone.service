@@ -1,0 +1,31 @@
+[Unit]
+Description=Wispr-clone push-to-talk dictation
+Documentation=https://github.com/wispr-clone/wispr-clone
+
+# Start only after the graphical session is up, and after the generic
+# sound target is available. This avoids races with PipeWire/PulseAudio
+# and the X11/Wayland environment.
+After=graphical-session.target sound.target
+Wants=graphical-session.target
+
+[Service]
+Type=simple
+# The install-service.sh script replaces @@WORKDIR@@ and @@WRAPPER@@
+# with the absolute paths for this machine. If you copy this file
+# manually, replace them with the real paths on your system.
+WorkingDirectory=@@WORKDIR@@
+ExecStart=@@WRAPPER@@
+
+Restart=on-failure
+RestartSec=5
+
+# Pass through the session environment so the Tkinter widget and X11
+# injection tools (xdotool/xclip) work correctly.
+PassEnvironment=PATH DISPLAY XAUTHORITY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP XDG_RUNTIME_DIR HOME USER
+
+# If the user logs out, stop the service cleanly.
+KillMode=mixed
+TimeoutStopSec=10
+
+[Install]
+WantedBy=default.target

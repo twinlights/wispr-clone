@@ -1,0 +1,41 @@
+# Wispr-clone configuration
+
+hotkey:
+  # Exactly 2 keys. Both held together = start recording.
+  # Releasing either one = stop recording.
+  # Valid names: cmd, cmd_r, alt_gr, alt_l, alt_r, alt, ctrl_l, ctrl_r,
+  #              ctrl, shift_l, shift_r, shift
+  # Default below = Windows/Super key + AltGr, as requested: an unusual
+  # combo that's never hit by normal typing or other shortcuts.
+  keys: ["cmd", "raw:65027"]
+
+audio:
+  sample_rate: 16000   # Whisper expects 16kHz mono
+  channels: 1
+
+whisper:
+  # tiny / base / small / medium / large-v3  (bigger = more accurate, more RAM/CPU)
+  # "small" is a good default on 16GB RAM shared with Ollama's mistral:7b.
+  # Bump to "medium" if accuracy on Flemish speech needs to improve and
+  # you have headroom (~2GB extra).
+  model_size: "medium"
+  device: "cpu"
+  compute_type: "int8"   # int8 = fastest/lowest memory on CPU
+  language: null          # null = auto-detect NL/EN per utterance; or force "nl" / "en"
+
+ollama:
+  enabled: false
+  base_url: "http://localhost:11434"
+  model: "mistral:7b"
+  timeout: 15   # seconds; falls back to the raw transcript if exceeded
+
+injection:
+  method: "clipboard"   # "clipboard" (recommended, handles accents) or "type"
+
+ui:
+  idle_text: "Wispr"
+  recording_text: "Recording"
+  processing_text: "Loading..."
+  idle_color: "#3b3f45"
+  recording_color: "#d9453d"
+  processing_color: "#e0a53d"

@@ -1,0 +1,25 @@
+# Python virtual environment
+.venv/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Whisper model cache (downloaded at runtime)
+~/.cache/huggingface/
+~/.cache/whisper/
+
+# Logs
+*.log
