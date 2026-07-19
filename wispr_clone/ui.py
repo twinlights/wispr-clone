@@ -37,10 +37,6 @@ class WisprWidget:
         self.root = tk.Tk()
         self.root.overrideredirect(True)        # borderless
         self.root.attributes("-topmost", True)   # always on top
-        try:
-            self.root.attributes("-alpha", 0.92)
-        except tk.TclError:
-            pass
 
         # Widget size: tall enough for three lines of text.
         w, h = 160, 80
@@ -123,14 +119,42 @@ class WisprWidget:
                 label=size,
                 command=lambda s=size: self._on_model_selected(s)
             )
-        menu.add_cascade(label="Switch Model", menu=model_menu)
+        menu.add_cascade(label="Speech Model Size", menu=model_menu)
+
+        menu.add_separator()
 
         is_cleaning = self.cfg["ollama"]["enabled"]
-        cleaning_label = "Cleaning: ON" if is_cleaning else "Cleaning: OFF"
+        cleaning_label = "Polishing: ON" if is_cleaning else "Polishing: OFF"
         menu.add_command(
             label=cleaning_label,
             command=lambda: self._on_toggle_cleaning(not is_cleaning)
         )
+
+        cleaning_model_menu = tk.Menu(menu, tearoff=0)
+        current_cleaning_model = self.cfg["ollama"]["model"]
+        available_models = self._get_ollama_models()
+        cleaning_model_var = tk.StringVar(value=current_cleaning_model)
+        for model in available_models:
+            cleaning_model_menu.add_radiobutton(
+                label=model,
+                variable=cleaning_model_var,
+                value=model,
+                command=lambda m=model: self._on_cleaning_model_selected(m),
+            )
+        if not available_models:
+            # Ollama isn't running or has no models pulled — still
+            # show the configured model so it remains selectable.
+            cleaning_model_menu.add_radiobutton(
+                label=current_cleaning_model,
+                variable=cleaning_model_var,
+                value=current_cleaning_model,
+            )
+            cleaning_model_menu.add_separator()
+            cleaning_model_menu.add_command(
+                label=f"Pull {current_cleaning_model}",
+                command=lambda: self._pull_ollama_model(current_cleaning_model),
+            )
+        menu.add_cascade(label=f"Ollama Polisher: {current_cleaning_model}", menu=cleaning_model_menu)
 
         menu.add_separator()
         menu.add_command(label="Open config.yaml", command=self._open_config)
@@ -148,6 +172,51 @@ class WisprWidget:
     def _on_toggle_cleaning(self, enabled):
         if self.on_menu_action:
             self.on_menu_action("toggle_cleaning", enabled)
+
+    def _on_cleaning_model_selected(self, model):
+        if self.on_menu_action:
+            self.on_menu_action("switch_cleaning_model", model)
+
+    def _get_ollama_models(self):
+        """Return installed Ollama model names via 'ollama list'.
+
+        If Ollama isn't running or no models are pulled, returns only
+        the currently configured model so the radiobutton still shows
+        what's selected — along with a hint shown separately in the menu.
+        """
+        try:
+            result = subprocess.run(
+                ["ollama", "list"],
+                capture_output=True, text=True, timeout=2,
+            )
+            if result.returncode != 0:
+                raise RuntimeError("ollama list failed")
+            models = []
+            for line in result.stdout.strip().split("\n")[1:]:  # skip header
+                if line.strip():
+                    name = line.split()[0]
+                    models.append(name)
+            if models:
+                current = self.cfg["ollama"]["model"]
+                if current not in models:
+                    models.append(current)
+                return models
+        except Exception:
+            pass
+        # Ollama unreachable or no models pulled.
+        return []
+
+    def _pull_ollama_model(self, model):
+        """Pull an Ollama model in the background via 'ollama pull'."""
+        try:
+            subprocess.Popen(
+                ["ollama", "pull", model],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except FileNotFoundError:
+            print("[wispr-clone] ollama not found — install it first: "
+                  "curl -fsSL https://ollama.com/install.sh | sh")
 
     def _open_config(self):
         from wispr_clone.config import DEFAULT_CONFIG_PATH

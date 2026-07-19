@@ -15,10 +15,10 @@ audio:
 
 whisper:
   # tiny / base / small / medium / large-v3  (bigger = more accurate, more RAM/CPU)
-  # "small" is a good default on 16GB RAM shared with Ollama's mistral:7b.
+  # "small" is a good default on 16GB RAM shared with Ollama.
   # Bump to "medium" if accuracy on Flemish speech needs to improve and
   # you have headroom (~2GB extra).
-  model_size: "medium"
+  model_size: "small"
   device: "cpu"
   compute_type: "int8"   # int8 = fastest/lowest memory on CPU
   language: null          # null = auto-detect NL/EN per utterance; or force "nl" / "en"
@@ -26,7 +26,10 @@ whisper:
 ollama:
   enabled: false
   base_url: "http://localhost:11434"
-  model: "mistral:7b"
+  # llama3.2:1b (~1.3 GB) is the default — small, fast, and more than
+  # capable for punctuation/capitalization cleanup.  Other good options:
+  # mistral:7b (~4.4 GB, better sentence structure), phi3:mini (~2.2 GB).
+  model: "llama3.2:1b"
   timeout: 15   # seconds; falls back to the raw transcript if exceeded
 
 injection:
@@ -36,6 +39,6 @@ ui:
   idle_text: "Wispr"
   recording_text: "Recording"
   processing_text: "Loading..."
-  idle_color: "#3b3f45"
+  idle_color: "#7a8088"
   recording_color: "#d9453d"
   processing_color: "#e0a53d"

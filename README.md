@@ -2,15 +2,20 @@
 
 A local, offline push-to-talk dictation tool for Kali Linux, modeled on Wisprflow.
 
+![Demo](demo.gif)
+
 - **Hold-to-record**: recording starts the instant a 2-key combo is held
   down together, and stops the instant either key is released (true
   press-and-release, not a toggle, not a 3-key shortcut).
 - **Fully offline** speech-to-text via `faster-whisper` (multilingual,
   handles Dutch/Flemish and English, auto-detected per utterance).
-- **Optional local cleanup pass** via your existing Ollama `mistral:7b`,
-  restricted by prompt to punctuation/filler-word cleanup only —
-  translation is explicitly forbidden, and if Ollama is unreachable the
-  raw transcript is used instead, so the tool never depends on it.
+- **Optional local cleanup pass** via your existing Ollama model
+  (`llama3.2:1b` by default, or any chat model you have pulled). Whisper already
+  removes filler words ("uh", "euhm", stutters) on its own — the
+  Ollama pass is for punctuation, capitalization, and sentence
+  structure. Translation is explicitly forbidden, and if Ollama
+  is unreachable the raw transcript is used instead, so the tool
+  never depends on it.
 - **Tiny UI**: a plain Tkinter oval widget ("Wispr" / "Recording" / "...")
   — a few MB of RAM, no Electron/Chromium/Qt involved.
 - Typed text goes straight into whatever window currently has focus.
@@ -69,9 +74,21 @@ again. To cache only the currently configured model instead, run:
 python3 scripts/predownload_model.py --current
 ```
 
-## Ollama
+## Ollama (optional)
 
-Make sure `mistral:7b` is already pulled and Ollama is running as usual:
+Whisper already produces clean text out of the box — it removes filler
+words ("uh", "euhm", stutters) and false starts natively, because its
+training data was transcribed by humans who already cleaned those up.
+
+The optional Ollama pass adds **punctuation and capitalization** on
+top, plus smoother sentence structure. If you're happy with the raw
+Whisper output, you can leave Ollama disabled (`ollama.enabled: false`)
+and the tool works perfectly offline with zero extra RAM.
+
+To enable cleaning, make sure a chat model is pulled and running.
+The default is `llama3.2:1b` (~1.3 GB) — small, fast, and more than
+capable for punctuation and capitalization.  For better sentence
+structure, switch to `mistral:7b` (~4.4 GB) in the menu or config.
 
 ```bash
 ollama list
@@ -172,8 +189,9 @@ systemctl --user disable --now wispr-clone.service
 | medium | ~1.5 GB             | better Flemish accuracy, still fine on 16GB alongside Ollama |
 | large-v3 | ~3 GB+            | best accuracy, only if you have headroom |
 
-Mistral:7b via Ollama typically uses ~4–5GB resident, so `small` or
-`medium` both leave comfortable headroom on a 16GB machine.
+Mistral:7b via Ollama typically uses ~4–5GB resident, `llama3.2:1b`
+uses ~2GB, so `small` or `medium` both leave comfortable headroom on
+a 16GB machine.
 
 ## Project layout
 

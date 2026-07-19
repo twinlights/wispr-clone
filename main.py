@@ -83,6 +83,13 @@ def main():
             _persist_cleaning_state(value)
             print(f"[wispr-clone] cleaning set to: {value}")
 
+        elif action == "switch_cleaning_model":
+            with state_lock:
+                cfg["ollama"]["model"] = value
+                polisher.model = value
+            _persist_ollama_model(value)
+            print(f"[wispr-clone] cleaning model set to: {value}")
+
     widget = WisprWidget(cfg, on_menu_action=on_menu_action)
 
     def on_press_combo():
@@ -152,6 +159,20 @@ def _persist_cleaning_state(enabled):
     new_text, count = re.subn(
         r'^(  enabled:\s*).*$',
         r'\1' + val_str,
+        text,
+        flags=re.MULTILINE,
+    )
+    if count:
+        path.write_text(new_text, encoding="utf-8")
+
+
+def _persist_ollama_model(model):
+    """Update ollama.model in config.yaml while preserving comments."""
+    path = DEFAULT_CONFIG_PATH
+    text = path.read_text(encoding="utf-8")
+    new_text, count = re.subn(
+        r'^(  model:\s*).*$',
+        r'\1"' + model + '"',
         text,
         flags=re.MULTILINE,
     )
