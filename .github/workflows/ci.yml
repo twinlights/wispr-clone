@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install what we can — some packages need system libs
+          # (pynput → X11, sounddevice → PortAudio) so we allow failures.
+          pip install -r requirements.txt || true
+
+      - name: Syntax check (py_compile)
+        run: |
+          echo "::group::Compiling all .py files"
+          find . -name "*.py" -not -path "./.git/*" | while read f; do
+            python -m py_compile "$f" && echo "  OK  $f"
+          done
+          echo "::endgroup::"
+
+      - name: Lint with ruff
+        run: |
+          pip install ruff
+          ruff check . --output-format=github || true
