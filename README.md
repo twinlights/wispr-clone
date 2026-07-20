@@ -1,5 +1,7 @@
 # Wispr-clone
 
+[![CI](https://github.com/twinlights/wispr-clone/actions/workflows/ci.yml/badge.svg)](https://github.com/twinlights/wispr-clone/actions/workflows/ci.yml)
+
 A local, offline push-to-talk dictation tool for Kali Linux, modeled on Wisprflow.
 
 <video src="demo.mp4" autoplay loop muted playsinline controls width="100%"></video>
