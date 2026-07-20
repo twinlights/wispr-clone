@@ -2,7 +2,9 @@
 
 A local, offline push-to-talk dictation tool for Kali Linux, modeled on Wisprflow.
 
-![Demo](demo.gif)
+<video src="demo.mp4" autoplay loop muted playsinline controls width="100%"></video>
+
+> Record your own demo at [screenrecorder.dev](https://screenrecorder.dev), save as `demo.mp4`, and drop it into the repo.
 
 - **Hold-to-record**: recording starts the instant a 2-key combo is held
   down together, and stops the instant either key is released (true

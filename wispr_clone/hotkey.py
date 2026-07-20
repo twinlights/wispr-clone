@@ -39,11 +39,25 @@ def _resolve_key(name):
     )
 
 
+def _normalize_key(key):
+    """Convert a pynput key into a canonical, reliably-hashable form.
+
+    pynput may create distinct KeyCode instances for press vs release
+    events, causing set membership / discard to silently fail when the
+    objects compare unequal.  Normalising to a plain tuple of primitives
+    guarantees consistent hashing and equality.
+    """
+    if isinstance(key, keyboard.KeyCode):
+        return ("code", key.vk, getattr(key, "char", None))
+    # keyboard.Key enum values are singletons and hash consistently.
+    return key
+
+
 class HotkeyListener:
     def __init__(self, key_names, on_press_combo, on_release_combo):
         if len(key_names) != 2:
             raise ValueError("Exactly 2 keys must be configured for the combo.")
-        self.target_keys = {_resolve_key(name) for name in key_names}
+        self.target_keys = {_normalize_key(_resolve_key(name)) for name in key_names}
         self.on_press_combo = on_press_combo
         self.on_release_combo = on_release_combo
 
@@ -53,15 +67,17 @@ class HotkeyListener:
         self._listener = None
 
     def _on_press(self, key):
+        norm = _normalize_key(key)
         with self._lock:
-            self._pressed.add(key)
+            self._pressed.add(norm)
             if not self._combo_active and self.target_keys.issubset(self._pressed):
                 self._combo_active = True
                 self.on_press_combo()
 
     def _on_release(self, key):
+        norm = _normalize_key(key)
         with self._lock:
-            self._pressed.discard(key)
+            self._pressed.discard(norm)
             if self._combo_active and not self.target_keys.issubset(self._pressed):
                 self._combo_active = False
                 self.on_release_combo()

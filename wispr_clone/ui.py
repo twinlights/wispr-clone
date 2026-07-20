@@ -177,8 +177,30 @@ class WisprWidget:
         if self.on_menu_action:
             self.on_menu_action("switch_cleaning_model", model)
 
+    # Models that definitely can't be used for text polishing.
+    # - embedding models (nomic-embed-text, mxbai-embed-large, etc.)
+    # - vision-only models (llava, bakllava, qwen*vl, minicpm-v, cogvlm,
+    #   moondream) — these often respond with image descriptions, not text cleanup
+    _NON_CHAT_PATTERNS = [
+        "embed", "llava", "bakllava", "cogvlm", "moondream",
+        "minicpm-v", "vl:", "-vision",
+    ]
+
+    @classmethod
+    def _is_chat_model(cls, name):
+        """Return False only for models that definitely can't polish text.
+
+        Uses a conservative blocklist: if we're not sure, the model stays.
+        """
+        lower = name.lower()
+        return not any(p in lower for p in cls._NON_CHAT_PATTERNS)
+
     def _get_ollama_models(self):
         """Return installed Ollama model names via 'ollama list'.
+
+        Filters out models that definitely can't do text polishing
+        (embedding models, vision-only). When in doubt, the model is
+        shown — users can always disable polishing if a model misbehaves.
 
         If Ollama isn't running or no models are pulled, returns only
         the currently configured model so the radiobutton still shows
@@ -195,7 +217,8 @@ class WisprWidget:
             for line in result.stdout.strip().split("\n")[1:]:  # skip header
                 if line.strip():
                     name = line.split()[0]
-                    models.append(name)
+                    if self._is_chat_model(name):
+                        models.append(name)
             if models:
                 current = self.cfg["ollama"]["model"]
                 if current not in models:
