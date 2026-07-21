@@ -182,7 +182,7 @@ systemctl --user enable --now wispr-clone.service
 systemctl --user disable --now wispr-clone.service
 ```
 
-## Tuning for your hardware (HP 850 G8, 16GB RAM)
+## Tuning for your hardware (exaple : 16GB RAM)
 
 `config.yaml` → `whisper.model_size`:
 
