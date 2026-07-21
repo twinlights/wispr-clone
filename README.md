@@ -4,9 +4,7 @@
 
 A local, offline push-to-talk dictation tool for Kali Linux, modeled on Wisprflow.
 
-<video autoplay loop muted playsinline controls width="100%">
-  <source src="https://raw.githubusercontent.com/twinlights/wispr-clone/main/demo.mp4" type="video/mp4">
-</video>
+[![Watch the video](https://raw.githubusercontent.com/twinlights/wispr-clone/main/thumbnail.jpg)](https://raw.githubusercontent.com/twinlights/wispr-clone/main/demo.mp4)
 
 
 - **Hold-to-record**: recording starts the instant a 2-key combo is held
