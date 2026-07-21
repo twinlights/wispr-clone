@@ -4,9 +4,8 @@
 
 A local, offline push-to-talk dictation tool for Kali Linux, modeled on Wisprflow.
 
-<video src="demo.mp4" autoplay loop muted playsinline controls width="100%"></video>
+<video src="https://raw.githubusercontent.com/twinlights/wispr-clone/main/demo.mp4" autoplay loop muted playsinline controls width="100%"></video>
 
-> Record your own demo at [screenrecorder.dev](https://screenrecorder.dev), save as `demo.mp4`, and drop it into the repo.
 
 - **Hold-to-record**: recording starts the instant a 2-key combo is held
   down together, and stops the instant either key is released (true
@@ -182,7 +181,7 @@ systemctl --user enable --now wispr-clone.service
 systemctl --user disable --now wispr-clone.service
 ```
 
-## Tuning for your hardware (exaple : 16GB RAM)
+## Tuning for your hardware (example : 16GB RAM)
 
 `config.yaml` → `whisper.model_size`:
 
