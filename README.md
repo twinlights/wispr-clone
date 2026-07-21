@@ -237,6 +237,12 @@ wispr() {
 
 Then just run `wispr` in a terminal.
 
+## Support
+
+If this is useful, consider [sponsoring on GitHub](https://github.com/sponsors/twinlights).
+
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/twinlights?style=flat&color=bf3989)](https://github.com/sponsors/twinlights)
+
 ## Troubleshooting
 
 - **Nothing types out**: check `xdotool key --clearmodifiers ctrl+v`
